@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+
+    <link href="http://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="http://getbootstrap.com/examples/justified-nav/justified-nav.css" rel="stylesheet">
+
+    <style>
+        .axis path {
+            fill: none;
+            stroke: #777;
+            shape-rendering: crispEdges;
+        }
+        .axis text {
+            font-family: Lato;
+            font-size: 13px;
+        }
+        .legend {
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .line.unfocused{
+           stroke-opacity: 40%;
+         }
+
+         .line.focused {
+           stroke-width: 3px;
+           stroke-opacity: 100%;
+        
+         }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="jumbotron">
+
+            <svg id="visualisation" width="1000" height="1500"></svg>
+            <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+            <script type="text/javascript" src="football.js"></script>
+            <script>
+                function extractTeams() {
+
+                    var dataGroup = d3.nest()
+                        .key(function(d) {
+                            return d.team_name;
+                        })
+                        .entries(football);
+                    //console.log(dataGroup);
+                    
+                    
+                    var currentTeams = ["Chelsea", "Arsenal", "Tottenham Hotspur", "Liverpool", "Manchester City", "Manchester United", "Everton", "West Bromwich Albion", "Stoke City", "West Ham United", "Southampton", "Bournemouth", "Burnley", "Watford", "Leicester City", "Middlesbrough", "Swansea City", "Crystal Palace", "Hull City", "Sunderland"]
+
+                    var teamStats = [];
+
+                    for (i=0; i<dataGroup.length; i++) {
+                        
+                        if (currentTeams.indexOf(dataGroup[i].key) > -1) {
+                            teamStats.push(dataGroup[i])
+                        }
+                    }
+
+                    for (i=0; i<teamStats.length; i++) {
+                        console.log(teamStats[i]);
+                    }
+
+                } 
+
+
+
+                extractTeams();
+            </script>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

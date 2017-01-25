@@ -22,6 +22,15 @@
             font-size: 14px;
             font-weight: bold;
         }
+        .line.unfocused{
+           stroke-opacity: 40%;
+         }
+
+         .line.focused {
+           stroke-width: 3px;
+           stroke-opacity: 100%;
+        
+         }
     </style>
 
 </head>
@@ -32,7 +41,7 @@
 
         <div class="jumbotron">
 
-            <svg id="visualisation" width="1000" height="700"></svg>
+            <svg id="visualisation" width="800" height="400"></svg>
             <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
             <script type="text/javascript" src="football.js"></script>
             <script>
@@ -45,18 +54,40 @@
                         .entries(football);
                     console.log(JSON.stringify(dataGroup));
 
+                    var currentTeams = ["Chelsea", "Arsenal", "Tottenham Hotspur", "Liverpool", "Manchester City", "Manchester United", "Everton", "West Bromwich Albion", "Stoke City", "West Ham United", "Southampton", "Bournemouth", "Burnley", "Watford", "Leicester City", "Middlesbrough", "Swansea City", "Crystal Palace", "Hull City", "Sunderland"]
+
+                    var teamStats = [];
+
+                    for (i=0; i<dataGroup.length; i++) {
+                        
+                        if (currentTeams.indexOf(dataGroup[i].key) > -1) {
+                            teamStats.push(dataGroup[i])
+                        }
+                    }
+
+                    for (i=0; i<teamStats.length; i++) {
+                        console.log(teamStats[i]);
+                    }
                     var vis = d3.select("#visualisation"),
-                        WIDTH = 1000,
-                        HEIGHT = 700,
+                        WIDTH = 800,
+                        HEIGHT = 400,
                         MARGINS = {
                             top: 50,
                             right: 20,
                             bottom: 50,
                             left: 50
                         },
-                        lSpace = WIDTH/dataGroup.length;
-                        xScale = d3.scale.linear().range([MARGINS.left, WIDTH - MARGINS.right]).domain([1958, 2016]),
-                        yScale = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([92,1]),
+                        lSpace = WIDTH/teamStats.length;
+                        xScale = d3.scale.linear().range([MARGINS.left, WIDTH - MARGINS.right]).domain([d3.min(football, function(d) {
+                                return d.year;
+                            }), d3.max(football, function(d) {
+                                return d.year;
+                            })]),
+                        yScale = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([d3.max(football, function(d) {
+                                return d.overall_position;
+                            }), d3.min(football, function(d) {
+                                return d.overall_position;
+                            })]),
                         xAxis = d3.svg.axis()
                         .scale(xScale)
                         .tickFormat(d3.format("d")),
@@ -81,19 +112,27 @@
                         })
 
                         
-                    dataGroup.forEach(function(d, i) {
+                    teamStats.forEach(function(d, i) {
                         vis.append('svg:path')
                             .attr('d', lineGen(d.values))
                             .attr('stroke', function(d, j) {
                                 return "hsl(" + Math.random() * 360 + ",100%,50%)";
                             })
-                            .attr('stroke-width', 2)
+                            .attr('stroke-width', 3)
                             .attr('id', 'line_'+d.key)
-                            .attr('fill', 'none');
+                            .attr('fill', 'none')
                             .on('click', function() {
                                 //make all other lines disappear
-                            })
+                            });
+                        
                         vis.append("text")
+                            /*
+                            .attr("transform", "translate("+(1003)+","+yScale(teamStats[0].open)+")")
+                              .attr("dy", ".35em")
+                              .attr("text-anchor", "start")
+                              .style("fill", "red")
+                              .text("Open");
+                        */
                             .attr("x", (lSpace / 2) + i * lSpace)
                             .attr("y", HEIGHT)
                             .style("fill", "black")
@@ -105,8 +144,44 @@
                                 d3.select("#line_" + d.key).style("opacity", opacity);
                                 d.active = active;
                             });
+                        
                     });
                 }
+
+                function mouseoverFunc(d) {
+                  // line styling:
+                  // this is the g element. select it, then the line inside it!
+                  //console.log(d, this);
+
+                  d3.selectAll("path.line").classed("unfocused", true);
+                  // now undo the unfocus on the current line and set to focused.
+                  d3.select(this).select("path.line").classed("unfocused", false).classed("focused", true);
+/*
+                    d3.selectAll(".name-label").classed("unfocused", true);
+                    // now undo the unfocus on the current line and set to focused.
+                    d3.select(this).select(".name-label").classed("hidden", false).classed("focused", true);
+                    */
+                }
+
+
+
+                function mouseoutFunc(d) {
+                    // this removes special classes for focusing from all lines. Back to default.
+                    d3.selectAll("path.line").classed("unfocused", false).classed("focused", false);
+                    /*
+                    tooltip.style("display", "none");
+
+                    d3.selectAll(".name-label").classed("focused",false).classed("hidden", true).classed ("hidden", function(d,i){
+                      if (i<=4|| i===9 ||i===8 ||i ===5) {
+                        return false;
+                      }else {
+                        return true;
+                      }
+                    })
+                    */
+                    // now undo the unfocus on the current line and set to focu    // this sets it to invisible!
+                }
+
                 InitChart();
             </script>
         </div>
